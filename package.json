@@ -1,6 +1,6 @@
 {
   "name": "@jrmi/use-socket.io",
-  "version": "1.6.0",
+  "version": "2.0.0",
   "description": "React hook for socket.io",
   "private": false,
   "main": "./lib/index.cjs",
@@ -36,7 +36,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jrmi/use-socket.io.git"
+    "url": "git+https://github.com/jrmi/use-socket.io.git"
   },
   "devDependencies": {
     "@testing-library/react": "^16.3.3",
