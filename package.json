@@ -1,5 +1,5 @@
 {
-  "name": "@scripters/use-socket.io",
+  "name": "@jrmi/use-socket.io",
   "version": "1.6.0",
   "description": "React hook for socket.io",
   "private": false,
@@ -7,6 +7,7 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "build": "tsc",
+    "prepublishOnly": "npm run build",
     "dev": "tsc --watch",
     "lint": "eslint 'src/**'",
     "test": "vitest run",
@@ -19,11 +20,11 @@
     "socket",
     "socket.io"
   ],
-  "author": "Wojciech Fałowski <falowski.w@gmail.com>",
+  "author": "Jérémie Pardou",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/scripters-dev/use-socket.io.git"
+    "url": "https://github.com/jrmi/use-socket.io.git"
   },
   "devDependencies": {
     "@semantic-release/git": "^10.0.1",
@@ -54,6 +55,9 @@
     "react-dom": ">= 16.10",
     "socket.io-client": ">= 4.0.0 < 5"
   },
+  "files": [
+    "lib"
+  ],
   "publishConfig": {
     "access": "public"
   }
