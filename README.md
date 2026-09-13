@@ -35,6 +35,12 @@ const socketOptions = { forceNew: true };
 </Provider>;
 ```
 
+When `url`, `namespaces`, or the `options` object identity changes, the
+provider disconnects all existing sockets and creates a new set. Keep options
+in a stable object (as above) when they are created inline or memoize them, so
+unrelated renders do not recreate the connections. Namespace entries are
+deduplicated.
+
 Namespaces are supported through the `namespaces` prop:
 
 ```tsx
