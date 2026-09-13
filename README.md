@@ -1,197 +1,161 @@
-# @scripters/use-socket.io 
-[![travis][travis-image]][travis-url] [![npm][npm-image]][npm-url] [![downloads][downloads-image]][downloads-url] [![eslint][eslint-image]][eslint-url] [![react][react-image]][react-url]
-                           
-[travis-image]: https://travis-ci.org/scripters-dev/use-socket.io.svg?branch=master
-[travis-url]: https://travis-ci.org/scripters-dev/use-socket.io
-[npm-image]: https://img.shields.io/npm/v/@scripters/use-socket.io.svg
-[npm-url]: https://npmjs.org/package/@scripters/use-socket.io
-[downloads-image]: https://img.shields.io/npm/dm/@scripters/use-socket.io.svg
-[downloads-url]: https://npmjs.org/package/@scripters/use-socket.io
-[eslint-image]: https://img.shields.io/npm/dependency-version/@scripters/use-socket.io/dev/eslint
-[eslint-url]: https://eslint.org
-[react-image]: https://img.shields.io/npm/dependency-version/@scripters/use-socket.io/dev/react
-[react-url]: https://reactjs.org/
+# @jrmi/use-socket.io
 
-Use socket.io library easily with React hooks
+[![CI](https://github.com/jrmi/use-socket.io/actions/workflows/ci.yml/badge.svg)](https://github.com/jrmi/use-socket.io/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/%40jrmi%2Fuse-socket.io)](https://www.npmjs.com/package/@jrmi/use-socket.io)
 
-### Installation
+React hooks for [Socket.IO](https://socket.io/).
 
-use-socket.io is available as an npm package.
+## About this fork
 
-```shell script
-// using npm
-npm i @scripters/use-socket.io
+This repository is a modernized fork of [scripters-dev/use-socket.io](https://github.com/scripters-dev/use-socket.io).
+It updates the original project to modern React, TypeScript, Socket.IO, and Vitest while preserving its core API:
+`Provider`, `useSocket`, `useListener`, `useEmit`, and `EVENTS`.
 
-// using yarn
-yarn add @scripters/use-socket.io
+The original npm package uses the `@scripters` scope. This fork is published as `@jrmi/use-socket.io`.
+
+## Installation
+
+```bash
+npm install @jrmi/use-socket.io socket.io-client
+# or
+yarn add @jrmi/use-socket.io socket.io-client
 ```
+
+`socket.io-client` is a peer dependency and must be installed by the consuming application.
 
 ## Usage
 
-[API](https://github.com/scripters-dev/use-socket.io/wiki/API)
+### Provider
 
-#### Provider
-```javascript
-import React from 'react';
-import { Provider } from '@scripters/use-socketio';
+```tsx
+import { Provider } from '@jrmi/use-socket.io';
 
-const SOCKET_URL = 'http://localhost:4000';
-const SOCKET_OPTIONS = {
-    forceNew: true,
-};
+const socketOptions = { forceNew: true };
 
-<Provider url={SOCKET_URL} options={SOCKET_OPTIONS}>
+<Provider url="http://localhost:4000" options={socketOptions}>
+    <App />
+</Provider>;
+```
+
+Namespaces are supported through the `namespaces` prop:
+
+```tsx
+<Provider
+    url="http://localhost:4000"
+    options={{ forceNew: true }}
+    namespaces={['chat', 'notifications']}
+>
     <App />
 </Provider>
 ```
 
-#### Provider with namespaces
-```javascript
-import React from 'react';
-import { Provider } from '@scripters/use-socketio';
+### useSocket
 
-const SOCKET_URL = 'http://localhost:4000';
-const SOCKET_OPTIONS = {
-    forceNew: true,
-};
+```tsx
+import { useEffect } from 'react';
+import { useSocket } from '@jrmi/use-socket.io';
 
-<Provider url={SOCKET_URL} options={SOCKET_OPTIONS} namespaces={['test']}>
-    <App />
-</Provider>
-```
-
-#### useSocket
-```javascript
-import React, { useEffect, useState } from 'react';
-import { useSocket } from '@scripters/use-socket.io';
-
-const ChatStatus = () => {
+function ChatStatus() {
     const socket = useSocket();
-    const [user, setUser] = useState(null);
 
     useEffect(() => {
-        socket.on('user', (userData) => {
-            setUser(userData);
-        });
+        if (!socket) return undefined;
+
+        const onUser = (user) => console.log(user);
+        socket.on('user', onUser);
+
+        return () => socket.off('user', onUser);
     }, [socket]);
 
-    const getMessage = () => user ? `User: ${user.name}` : 'User unauthenticated';
-
-    return (
-        <p>
-            { getMessage() }
-        </p>
-    )
-};
-
-export default ChatStatus;
+    return <p>Chat status</p>;
+}
 ```
 
-#### useListener
+Pass a namespace to retrieve its socket:
 
-```javascript
-import React, { useState } from 'react';
-import { useListener } from '@scripters/use-socket.io';
-
-const ChatStatus = () => {
-    const [user, setUser] = useState(null);
-    
-    useListener('user', setUser);
-
-    const getMessage = () => user ? `User: ${user.name}` : 'User unauthenticated';
-
-    return (
-        <p>
-            { getMessage() }
-        </p>
-    )
-};
-
-export default ChatStatus;
+```tsx
+const chatSocket = useSocket('chat');
 ```
 
-#### useListener with pause
+### useListener
 
-```javascript
-import React, { useState } from 'react';
-import { useListener } from '@scripters/use-socket.io';
+```tsx
+import { useListener } from '@jrmi/use-socket.io';
 
-const ChatStatus = () => {
-    const [currentMessage, setMessage] = useState('');
-    
-    const [subscribeMessages, unsubscribeMessages ] = useListener('messages', setMessage);
-
-    setTimeout(() => {
-        unsubscribeMessages();
-    }, 2000);
-
-    setTimeout(() => {
-        subscribeMessages();
-    }, 5000);
+function Chat() {
+    const [subscribe, unsubscribe] = useListener('message', (message) => {
+        console.log(message);
+    });
 
     return (
-        <p>{ currentMessage }</p>
-    )
-};
-
-export default ChatStatus;
+        <button type="button" onClick={unsubscribe}>
+            Pause messages
+        </button>
+    );
+}
 ```
 
-#### useEmit
+Listeners subscribe automatically. Set `autoSubscribe: false` to control them manually. A namespace can be selected
+with `{ namespace: 'chat' }`.
 
-```javascript
-import React from 'react';
-import { useEmit } from '@scripters/use-socket.io';
+### useEmit
 
-const ChatMessage = () => {
+```tsx
+import { useEmit } from '@jrmi/use-socket.io';
+
+function ChatMessage() {
     const emit = useEmit();
 
-    const handleMessage = (message) => {
-        emit('message', message);
-    };
-
     return (
-        <div>
-           <button onClick={() => handleMessage('Test message')}>Send message</button>
-        </div>
-    )
-};
-
-export default ChatMessage;
-
+        <button type="button" onClick={() => emit('message', 'Hello')}>
+            Send message
+        </button>
+    );
+}
 ```
 
-## Hints
+Use `{ compress: true }` to enable Socket.IO compression, or `{ namespace: 'chat' }` to emit through a namespace.
 
-Sometimes you want to be sure that all listeners are attached to the socket before connection is established. It's helpful when you want to handle events which socket server sends right after client is connected (e.g. `connect`). To solve that you can use socket option `autoConnect: false` and `socket.open()` right after all listeners attach call.
+## Connecting manually
 
-```javascript
-import React, { useState } from 'react';
-import { Provider, useSocket, useListener } from '@scripters/use-socket.io';
+To attach listeners before the connection starts, disable automatic connection and open the socket after mounting:
 
-const App = () => {
-    const [connected, setConnected] = useState(false);
+```tsx
+function App() {
     const socket = useSocket();
 
-    useListener('connect', () => setConnected(true));
+    useListener('connect', () => console.log('Connected'));
 
-    socket.open();
+    useEffect(() => {
+        socket?.open();
+    }, [socket]);
 
-    return (connected ? 'User connected' : 'User disconnected');
+    return <p>Chat</p>;
 }
 
-<Provider url="http://localhost:4000/" options={{ autoConnect: false }}>
+<Provider url="http://localhost:4000" options={{ autoConnect: false }}>
     <App />
-</Provider>
+</Provider>;
 ```
 
-## Versioning
+## Development
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/scripters-dev/use-socket.io/tags). 
+```bash
+yarn install
+yarn lint
+yarn test
+yarn build
+```
 
-## Roadmap
-See the [open issues](https://github.com/scripters-dev/use-socket.io/issues) for a list of proposed features (and known issues).
+GitHub Actions runs linting, tests, and the TypeScript build for pushes and pull requests.
+
+## References
+
+- [Upstream project](https://github.com/scripters-dev/use-socket.io)
+- [Socket.IO documentation](https://socket.io/docs/v4/)
+- [React documentation](https://react.dev/)
+- [Vitest documentation](https://vitest.dev/)
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project remains licensed under the [MIT License](LICENSE).
