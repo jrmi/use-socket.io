@@ -1,11 +1,13 @@
 {
     "parser": "@typescript-eslint/parser",
     "plugins": [
-        "@typescript-eslint"
+        "react",
+        "react-hooks"
     ],
     "extends": [
-        "airbnb",
-        "plugin:react/recommended"
+        "eslint:recommended",
+        "plugin:react/recommended",
+        "plugin:react-hooks/recommended"
     ],
     "parserOptions": {
         "sourceType": "module"
@@ -22,7 +24,6 @@
         "beforeEach": "readonly"
     },
     "rules": {
-        "import/extensions": ["error", "ignorePackages", {"ts": "never", "tsx": "never"}],
         "no-unused-vars": "off",
         "react/require-default-props": "off",
         "react/function-component-definition": "off",
@@ -48,28 +49,10 @@
                 ]
             }
         ],
-        "import/no-extraneous-dependencies": [
-            "error",
-            {
-                "devDependencies": true
-            }
-        ],
         "max-len": [
             "error",
             120
         ],
         "implicit-arrow-linebreak": "off"
-    },
-    "settings": {
-        "import/resolver": {
-            "node": {
-                "extensions": [
-                    ".js",
-                    ".jsx",
-                    ".ts",
-                    ".tsx"
-                ]
-            }
-        }
     }
 }
