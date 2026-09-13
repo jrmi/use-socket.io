@@ -1,28 +1,42 @@
 {
     "parser": "@typescript-eslint/parser",
     "plugins": [
-        "@typescript-eslint"
+        "react",
+        "react-hooks"
     ],
     "extends": [
-        "airbnb",
-        "plugin:react/recommended"
+        "eslint:recommended",
+        "plugin:react/recommended",
+        "plugin:react-hooks/recommended"
     ],
     "parserOptions": {
         "sourceType": "module"
     },
     "env": {
+        "browser": true,
         "es6": true,
         "jest": true
     },
+    "globals": {
+        "vi": "readonly",
+        "describe": "readonly",
+        "it": "readonly",
+        "expect": "readonly",
+        "beforeEach": "readonly"
+    },
+    "settings": {
+        "react": {
+            "version": "detect"
+        }
+    },
     "rules": {
-        "indent": [
-            "error",
-            4
-        ],
-        "react/jsx-indent": [
-            "warn",
-            4
-        ],
+        "no-unused-vars": "off",
+        "react/require-default-props": "off",
+        "react/function-component-definition": "off",
+        "react/react-in-jsx-scope": "off",
+        "react/destructuring-assignment": "off",
+        "react/jsx-no-constructed-context-values": "off",
+        "implicit-arrow-linebreak": "off",
         "react/jsx-filename-extension": [
             1,
             {
@@ -33,28 +47,10 @@
                 ]
             }
         ],
-        "import/no-extraneous-dependencies": [
-            "error",
-            {
-                "devDependencies": true
-            }
-        ],
         "max-len": [
             "error",
             120
         ],
-        "implicit-arrow-linebreak": ["error", "below"]
-    },
-    "settings": {
-        "import/resolver": {
-            "node": {
-                "extensions": [
-                    ".js",
-                    ".jsx",
-                    ".ts",
-                    ".tsx"
-                ]
-            }
-        }
+        "implicit-arrow-linebreak": "off"
     }
 }

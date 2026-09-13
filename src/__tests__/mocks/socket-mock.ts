@@ -1,20 +1,23 @@
 let connected = true;
-let listeners: Array<string> = [];
+let listeners: Array<{
+    eventName: string;
+    callback: (data: any) => void;
+}> = [];
 
 export default ({
     id: 'test',
     connected,
-    open: jest.fn(),
-    emit: jest.fn(),
-    on: jest.fn((eventName) =>
-        listeners.push(eventName)),
-    removeListener: jest.fn((eventName) => {
-        listeners = listeners.filter((event) =>
-            event !== eventName);
+    open: vi.fn(),
+    emit: vi.fn(),
+    on: vi.fn((eventName: string, callback: (data: any) => void) =>
+        listeners.push({ eventName, callback })),
+    removeListener: vi.fn((eventName: string, callback: (data: any) => void) => {
+        listeners = listeners.filter((listener) =>
+            listener.eventName !== eventName || listener.callback !== callback);
     }),
-    disconnect: () => { connected = false; },
+    disconnect: vi.fn(() => { connected = false; }),
     hasListeners: (eventName: string) =>
-        listeners.includes(eventName),
+        listeners.some((listener) => listener.eventName === eventName),
 });
 
 export const cleanupListeners = () => {

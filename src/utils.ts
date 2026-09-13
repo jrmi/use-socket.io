@@ -1,9 +1,11 @@
+import type { Socket } from 'socket.io-client';
+
 interface contextParams {
-    socket: SocketIOClient.Socket | null,
-    namespaces?: { [namespace: string]: SocketIOClient.Socket },
+    socket: Socket | null,
+    namespaces?: { [namespace: string]: Socket },
 }
 
-type getSocketConnectionType = (params: contextParams) => (namespace?: string) => SocketIOClient.Socket | null;
+type getSocketConnectionType = (params: contextParams) => (namespace?: string) => Socket | null;
 
 // eslint-disable-next-line
 export const getSocketConnection: getSocketConnectionType = ({ socket, namespaces }) => (namespace) => {

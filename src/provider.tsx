@@ -1,47 +1,70 @@
-import * as React from 'react';
-import * as io from 'socket.io-client';
+import {
+    useEffect,
+    useState,
+    type PropsWithChildren,
+} from 'react';
+import {
+    io,
+    type ManagerOptions,
+    type Socket,
+    type SocketOptions,
+} from 'socket.io-client';
 
 import Context from './context';
 
-interface ProviderProps {
+interface ProviderProps extends PropsWithChildren {
     url: string,
     namespaces?: Array<string>
-    options?: object,
+    options?: Partial<ManagerOptions & SocketOptions>,
 }
 
-interface ProviderState {
-    socket: SocketIOClient.Socket,
-    namespaces: { [namespace: string]: SocketIOClient.Socket }
+interface SocketConnections {
+    socket: Socket,
+    namespaces: { [namespace: string]: Socket }
 }
+
+const defaultOptions: Partial<ManagerOptions & SocketOptions> = {};
 
 const getUrlOrigin = (url: string) =>
     new URL(url).origin;
 
-const generateNamespaces = (props: ProviderProps) =>
-    (result: object, namespace: string) =>
-        ({ ...result, [namespace]: io(`${getUrlOrigin(props.url)}/${namespace}`, props.options) });
+function Provider({
+    children,
+    url,
+    options = defaultOptions,
+    namespaces = [],
+}: ProviderProps) {
+    // A namespace can only have one connection in the context. De-duplicating
+    // here also makes sure every connection we create is cleaned up below.
+    const namespaceKey = JSON.stringify([...new Set(namespaces)]);
+    const [connections, setConnections] = useState<SocketConnections | null>(null);
 
-class Provider extends React.Component<ProviderProps, ProviderState> {
-    constructor(props: ProviderProps) {
-        super(props);
-        const { url, options = {}, namespaces = [] } = props;
-
-        this.state = {
+    useEffect(() => {
+        const uniqueNamespaces = JSON.parse(namespaceKey) as Array<string>;
+        const nextConnections: SocketConnections = {
             socket: io(url, options),
-            namespaces: namespaces.reduce(generateNamespaces(props), {}),
+            namespaces: uniqueNamespaces.reduce(
+                (result, namespace) => ({
+                    ...result,
+                    [namespace]: io(`${getUrlOrigin(url)}/${namespace}`, options),
+                }),
+                {},
+            ),
         };
-    }
 
-    render() {
-        const { children } = this.props;
-        const { socket, namespaces } = this.state;
+        setConnections(nextConnections);
 
-        return (
-            <Context.Provider value={{ socket, namespaces }}>
-                {children}
-            </Context.Provider>
-        );
-    }
+        return () => {
+            nextConnections.socket.disconnect();
+            Object.values(nextConnections.namespaces).forEach((socket) => socket.disconnect());
+        };
+    }, [namespaceKey, options, url]);
+
+    return (
+        <Context.Provider value={connections || { socket: null, namespaces: {} }}>
+            {children}
+        </Context.Provider>
+    );
 }
 
 export default Provider;

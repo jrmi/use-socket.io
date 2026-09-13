@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+import type { Socket } from 'socket.io-client';
 
 import Context from './context';
 import { getSocketConnection } from './utils';
@@ -11,11 +12,11 @@ interface emitOptions {
 type useEmitType = (options?: emitOptions) =>
     (eventName: string, eventData: any) => void;
 
-const emitEvent = (socketConnection: SocketIOClient.Socket) =>
+const emitEvent = (socketConnection: Socket) =>
     (eventName: string, eventData: any) =>
         socketConnection.emit(eventName, eventData);
 
-const compressEvent = (socketConnection: SocketIOClient.Socket) =>
+const compressEvent = (socketConnection: Socket) =>
     socketConnection.compress(true);
 
 const useEmit: useEmitType = (options = {}) => {
