@@ -123,4 +123,24 @@ describe('Test useSocket', () => {
         expect(result.current[0]).toBeInstanceOf(Function);
         expect(result.current[1]).toBeInstanceOf(Function);
     });
+
+    it('should keep subscriptions independent between hook instances', () => {
+        const wrapper = ({ children }: any) =>
+            (<Provider url={url}>{children}</Provider>);
+        const first = renderHook(() => useListener('test', () => {}), { wrapper });
+        const second = renderHook(() => useListener('test', () => {}), { wrapper });
+
+        expect(mockSocket.on).toBeCalledTimes(2);
+
+        first.unmount();
+
+        expect(mockSocket.removeListener).toBeCalledTimes(1);
+
+        second.result.current[0]();
+        expect(mockSocket.on).toBeCalledTimes(2);
+
+        second.unmount();
+
+        expect(mockSocket.removeListener).toBeCalledTimes(2);
+    });
 });

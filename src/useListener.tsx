@@ -25,18 +25,24 @@ type useListenerFunction = (eventName: string, callback: SocketCallbackType, opt
 const useListener: useListenerFunction = (eventName, callback, options = {}) => {
     const socketConnection = getSocketConnection(useContext(Context))(options.namespace);
     const callbackRef = useRef(callback);
+    const subscribedCallbackRef = useRef<SocketCallbackType | null>(null);
+    const subscribedRef = useRef(false);
     callbackRef.current = callback;
     const autoSubscribe = options.autoSubscribe !== false;
 
     const subscribeToEvent = useCallback(() => {
-        if (socketConnection && !socketConnection.hasListeners(eventName)) {
-            socketConnection.on(eventName, callbackRef.current);
+        if (socketConnection && !subscribedRef.current) {
+            subscribedCallbackRef.current = callbackRef.current;
+            socketConnection.on(eventName, subscribedCallbackRef.current);
+            subscribedRef.current = true;
         }
     }, [socketConnection, eventName]);
 
     const unsubscribeFromEvent = useCallback(() => {
-        if (socketConnection && socketConnection.hasListeners(eventName)) {
-            socketConnection.removeListener(eventName, callbackRef.current);
+        if (socketConnection && subscribedRef.current && subscribedCallbackRef.current) {
+            socketConnection.removeListener(eventName, subscribedCallbackRef.current);
+            subscribedCallbackRef.current = null;
+            subscribedRef.current = false;
         }
     }, [socketConnection, eventName]);
 

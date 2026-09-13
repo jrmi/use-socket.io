@@ -1,20 +1,23 @@
 let connected = true;
-let listeners: Array<string> = [];
+let listeners: Array<{
+    eventName: string;
+    callback: (data: any) => void;
+}> = [];
 
 export default ({
     id: 'test',
     connected,
     open: vi.fn(),
     emit: vi.fn(),
-    on: vi.fn((eventName: string) =>
-        listeners.push(eventName)),
-    removeListener: vi.fn((eventName: string) => {
-        listeners = listeners.filter((event) =>
-            event !== eventName);
+    on: vi.fn((eventName: string, callback: (data: any) => void) =>
+        listeners.push({ eventName, callback })),
+    removeListener: vi.fn((eventName: string, callback: (data: any) => void) => {
+        listeners = listeners.filter((listener) =>
+            listener.eventName !== eventName || listener.callback !== callback);
     }),
     disconnect: () => { connected = false; },
     hasListeners: (eventName: string) =>
-        listeners.includes(eventName),
+        listeners.some((listener) => listener.eventName === eventName),
 });
 
 export const cleanupListeners = () => {
