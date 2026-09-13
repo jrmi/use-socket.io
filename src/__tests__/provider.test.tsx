@@ -1,35 +1,25 @@
 import * as React from 'react';
-import { shallow } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 
 import Provider from '../provider';
 import mockSocket from './mocks/socket-mock';
 
 const url = 'http://local.test/';
 
-jest.mock('socket.io-client', () =>
-    () =>
-        mockSocket);
+vi.mock('socket.io-client', () => ({ io: () => mockSocket }));
 
 describe('Test provider', () => {
-    const getWrapper = () =>
-        shallow(
-            <Provider url={url}>
-                Test
-            </Provider>,
-        );
+    it('renders its children', () => {
+        render(<Provider url={url}>Test</Provider>);
+        expect(screen.getByText('Test')).toBeTruthy();
+    });
 
-    const getAdvancedWrapper = () =>
-        shallow(
+    it('supports namespaces', () => {
+        render(
             <Provider url={url} options={{ forceNew: false }} namespaces={['test', 'mock']}>
                 Test
             </Provider>,
         );
-
-    it('basic example should match snapshot', () => {
-        expect(getWrapper()).toMatchSnapshot();
-    });
-
-    it('advanced example should match snapshot', () => {
-        expect(getAdvancedWrapper()).toMatchSnapshot();
+        expect(screen.getByText('Test')).toBeTruthy();
     });
 });

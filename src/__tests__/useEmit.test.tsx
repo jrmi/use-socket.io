@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 
 import Provider from '../provider';
 import useEmit from '../useEmit';
@@ -7,9 +7,7 @@ import mockSocket from './mocks/socket-mock';
 
 const url = 'http://local.test/';
 
-jest.mock('socket.io-client', () =>
-    () =>
-        mockSocket);
+vi.mock('socket.io-client', () => ({ io: () => mockSocket }));
 
 describe('Test useEmit', () => {
     it('should be called', () => {

@@ -4,11 +4,11 @@ let listeners: Array<string> = [];
 export default ({
     id: 'test',
     connected,
-    open: jest.fn(),
-    emit: jest.fn(),
-    on: jest.fn((eventName) =>
+    open: vi.fn(),
+    emit: vi.fn(),
+    on: vi.fn((eventName: string) =>
         listeners.push(eventName)),
-    removeListener: jest.fn((eventName) => {
+    removeListener: vi.fn((eventName: string) => {
         listeners = listeners.filter((event) =>
             event !== eventName);
     }),

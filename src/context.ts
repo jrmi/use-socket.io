@@ -1,6 +1,7 @@
 import * as React from 'react';
+import type { Socket } from 'socket.io-client';
 
 export default React.createContext<{
-    socket: SocketIOClient.Socket | null,
-    namespaces: { [namespace: string]: SocketIOClient.Socket}
+    socket: Socket | null,
+    namespaces: { [namespace: string]: Socket }
 }>({ socket: null, namespaces: {} });

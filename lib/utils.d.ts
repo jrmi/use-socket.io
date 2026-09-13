@@ -1,10 +1,10 @@
-/// <reference types="socket.io-client" />
+import type { Socket } from 'socket.io-client';
 interface contextParams {
-    socket: SocketIOClient.Socket | null;
+    socket: Socket | null;
     namespaces?: {
-        [namespace: string]: SocketIOClient.Socket;
+        [namespace: string]: Socket;
     };
 }
-declare type getSocketConnectionType = (params: contextParams) => (namespace?: string) => SocketIOClient.Socket | null;
+type getSocketConnectionType = (params: contextParams) => (namespace?: string) => Socket | null;
 export declare const getSocketConnection: getSocketConnectionType;
 export {};

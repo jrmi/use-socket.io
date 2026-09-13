@@ -1,12 +1,16 @@
 {
     "compilerOptions": {
-        "target": "ES2015",
+        "target": "ES2020",
         "module": "commonjs",
         "declaration": true,
-        "jsx": "react",
+        "jsx": "react-jsx",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "skipLibCheck": true,
         "outDir": "lib",
         "strict": true,
-        "removeComments": true
+        "removeComments": true,
+        "types": ["vitest/globals"]
     },
     "include": [
         "src/**/*"

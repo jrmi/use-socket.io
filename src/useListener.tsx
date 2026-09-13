@@ -25,6 +25,8 @@ type useListenerFunction = (eventName: string, callback: SocketCallbackType, opt
 const useListener: useListenerFunction = (eventName, callback, options = {}) => {
     const socketConnection = getSocketConnection(useContext(Context))(options.namespace);
     const callbackRef = useRef(callback);
+    callbackRef.current = callback;
+    const autoSubscribe = options.autoSubscribe !== false;
 
     const subscribeToEvent = useCallback(() => {
         if (socketConnection && !socketConnection.hasListeners(eventName)) {
@@ -39,14 +41,14 @@ const useListener: useListenerFunction = (eventName, callback, options = {}) => 
     }, [socketConnection, eventName]);
 
     useEffect(() => {
-        if (options.autoSubscribe !== false) {
+        if (autoSubscribe) {
             subscribeToEvent();
         }
 
         return () => {
             unsubscribeFromEvent();
         };
-    }, []);
+    }, [autoSubscribe, subscribeToEvent, unsubscribeFromEvent]);
 
     return [
         subscribeToEvent,

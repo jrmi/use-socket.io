@@ -1,4 +1,4 @@
-/// <reference types="socket.io-client" />
-declare type useSocketType = (namespace?: string) => SocketIOClient.Socket | null;
+import type { Socket } from 'socket.io-client';
+type useSocketType = (namespace?: string) => Socket | null;
 declare const useSocket: useSocketType;
 export default useSocket;

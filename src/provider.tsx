@@ -1,17 +1,17 @@
 import * as React from 'react';
-import * as io from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 
 import Context from './context';
 
-interface ProviderProps {
+interface ProviderProps extends React.PropsWithChildren {
     url: string,
     namespaces?: Array<string>
     options?: object,
 }
 
 interface ProviderState {
-    socket: SocketIOClient.Socket,
-    namespaces: { [namespace: string]: SocketIOClient.Socket }
+    socket: Socket,
+    namespaces: { [namespace: string]: Socket }
 }
 
 const getUrlOrigin = (url: string) =>
@@ -30,6 +30,11 @@ class Provider extends React.Component<ProviderProps, ProviderState> {
             socket: io(url, options),
             namespaces: namespaces.reduce(generateNamespaces(props), {}),
         };
+    }
+
+    componentWillUnmount() {
+        this.state.socket.disconnect();
+        Object.values(this.state.namespaces).forEach((socket) => socket.disconnect());
     }
 
     render() {

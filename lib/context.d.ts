@@ -1,9 +1,9 @@
-/// <reference types="socket.io-client" />
 import * as React from 'react';
+import type { Socket } from 'socket.io-client';
 declare const _default: React.Context<{
-    socket: SocketIOClient.Socket | null;
+    socket: Socket | null;
     namespaces: {
-        [namespace: string]: SocketIOClient.Socket;
+        [namespace: string]: Socket;
     };
 }>;
 export default _default;
