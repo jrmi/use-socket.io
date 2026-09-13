@@ -17,8 +17,6 @@ The original npm package uses the `@scripters` scope. This fork is published as 
 
 ```bash
 npm install @jrmi/use-socket.io socket.io-client
-# or
-yarn add @jrmi/use-socket.io socket.io-client
 ```
 
 `socket.io-client` is a peer dependency and must be installed by the consuming application.
@@ -141,10 +139,10 @@ function App() {
 ## Development
 
 ```bash
-yarn install
-yarn lint
-yarn test
-yarn build
+npm install
+npm run lint
+npm test
+npm run build
 ```
 
 GitHub Actions runs linting, tests, and the TypeScript build for pushes and pull requests.
