@@ -22,6 +22,7 @@
     "prepublishOnly": "npm run build",
     "dev": "tsc --watch",
     "lint": "eslint 'src/**'",
+    "lint:fix": "eslint 'src/**' --fix && prettier --write 'src/**/*.{ts,tsx}'",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -47,6 +48,7 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "jsdom": "^27.0.0",
+    "prettier": "^3.6.2",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "socket.io-client": "^4.8.3",

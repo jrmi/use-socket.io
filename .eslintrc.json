@@ -13,6 +13,7 @@
         "sourceType": "module"
     },
     "env": {
+        "browser": true,
         "es6": true,
         "jest": true
     },
@@ -23,6 +24,11 @@
         "expect": "readonly",
         "beforeEach": "readonly"
     },
+    "settings": {
+        "react": {
+            "version": "detect"
+        }
+    },
     "rules": {
         "no-unused-vars": "off",
         "react/require-default-props": "off",
@@ -31,14 +37,6 @@
         "react/destructuring-assignment": "off",
         "react/jsx-no-constructed-context-values": "off",
         "implicit-arrow-linebreak": "off",
-        "indent": [
-            "error",
-            4
-        ],
-        "react/jsx-indent": [
-            "warn",
-            4
-        ],
         "react/jsx-filename-extension": [
             1,
             {

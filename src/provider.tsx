@@ -36,11 +36,11 @@ function Provider({
 }: ProviderProps) {
     // A namespace can only have one connection in the context. De-duplicating
     // here also makes sure every connection we create is cleaned up below.
-    const uniqueNamespaces = [...new Set(namespaces)];
-    const namespaceKey = uniqueNamespaces.join('\u0000');
+    const namespaceKey = JSON.stringify([...new Set(namespaces)]);
     const [connections, setConnections] = useState<SocketConnections | null>(null);
 
     useEffect(() => {
+        const uniqueNamespaces = JSON.parse(namespaceKey) as Array<string>;
         const nextConnections: SocketConnections = {
             socket: io(url, options),
             namespaces: uniqueNamespaces.reduce(
