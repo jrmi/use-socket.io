@@ -25,6 +25,8 @@
         "import/extensions": ["error", "ignorePackages", {"ts": "never", "tsx": "never"}],
         "no-unused-vars": "off",
         "react/require-default-props": "off",
+        "react/function-component-definition": "off",
+        "react/react-in-jsx-scope": "off",
         "react/destructuring-assignment": "off",
         "react/jsx-no-constructed-context-values": "off",
         "implicit-arrow-linebreak": "off",

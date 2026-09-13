@@ -1,19 +1,9 @@
-import * as React from 'react';
-import { Socket } from 'socket.io-client';
-interface ProviderProps extends React.PropsWithChildren {
+import { type PropsWithChildren } from 'react';
+import { type ManagerOptions, type SocketOptions } from 'socket.io-client';
+interface ProviderProps extends PropsWithChildren {
     url: string;
     namespaces?: Array<string>;
-    options?: object;
+    options?: Partial<ManagerOptions & SocketOptions>;
 }
-interface ProviderState {
-    socket: Socket;
-    namespaces: {
-        [namespace: string]: Socket;
-    };
-}
-declare class Provider extends React.Component<ProviderProps, ProviderState> {
-    constructor(props: ProviderProps);
-    componentWillUnmount(): void;
-    render(): React.JSX.Element;
-}
+declare function Provider({ children, url, options, namespaces, }: ProviderProps): import("react").JSX.Element;
 export default Provider;

@@ -1,15 +1,24 @@
-import * as React from 'react';
-import { io, Socket } from 'socket.io-client';
+import {
+    useEffect,
+    useMemo,
+    type PropsWithChildren,
+} from 'react';
+import {
+    io,
+    type ManagerOptions,
+    type Socket,
+    type SocketOptions,
+} from 'socket.io-client';
 
 import Context from './context';
 
-interface ProviderProps extends React.PropsWithChildren {
+interface ProviderProps extends PropsWithChildren {
     url: string,
     namespaces?: Array<string>
-    options?: object,
+    options?: Partial<ManagerOptions & SocketOptions>,
 }
 
-interface ProviderState {
+interface SocketConnections {
     socket: Socket,
     namespaces: { [namespace: string]: Socket }
 }
@@ -17,36 +26,34 @@ interface ProviderState {
 const getUrlOrigin = (url: string) =>
     new URL(url).origin;
 
-const generateNamespaces = (props: ProviderProps) =>
-    (result: object, namespace: string) =>
-        ({ ...result, [namespace]: io(`${getUrlOrigin(props.url)}/${namespace}`, props.options) });
+function Provider({
+    children,
+    url,
+    options = {},
+    namespaces = [],
+}: ProviderProps) {
+    const namespaceKey = namespaces.join('\u0000');
+    const connections = useMemo<SocketConnections>(() => ({
+        socket: io(url, options),
+        namespaces: namespaces.reduce(
+            (result, namespace) => ({
+                ...result,
+                [namespace]: io(`${getUrlOrigin(url)}/${namespace}`, options),
+            }),
+            {},
+        ),
+    }), [namespaceKey, options, url]);
 
-class Provider extends React.Component<ProviderProps, ProviderState> {
-    constructor(props: ProviderProps) {
-        super(props);
-        const { url, options = {}, namespaces = [] } = props;
+    useEffect(() => () => {
+        connections.socket.disconnect();
+        Object.values(connections.namespaces).forEach((socket) => socket.disconnect());
+    }, [connections]);
 
-        this.state = {
-            socket: io(url, options),
-            namespaces: namespaces.reduce(generateNamespaces(props), {}),
-        };
-    }
-
-    componentWillUnmount() {
-        this.state.socket.disconnect();
-        Object.values(this.state.namespaces).forEach((socket) => socket.disconnect());
-    }
-
-    render() {
-        const { children } = this.props;
-        const { socket, namespaces } = this.state;
-
-        return (
-            <Context.Provider value={{ socket, namespaces }}>
-                {children}
-            </Context.Provider>
-        );
-    }
+    return (
+        <Context.Provider value={connections}>
+            {children}
+        </Context.Provider>
+    );
 }
 
 export default Provider;
