@@ -1,6 +1,6 @@
 import {
     useEffect,
-    useMemo,
+    useState,
     type PropsWithChildren,
 } from 'react';
 import {
@@ -23,34 +23,42 @@ interface SocketConnections {
     namespaces: { [namespace: string]: Socket }
 }
 
+const defaultOptions: Partial<ManagerOptions & SocketOptions> = {};
+
 const getUrlOrigin = (url: string) =>
     new URL(url).origin;
 
 function Provider({
     children,
     url,
-    options = {},
+    options = defaultOptions,
     namespaces = [],
 }: ProviderProps) {
     const namespaceKey = namespaces.join('\u0000');
-    const connections = useMemo<SocketConnections>(() => ({
-        socket: io(url, options),
-        namespaces: namespaces.reduce(
-            (result, namespace) => ({
-                ...result,
-                [namespace]: io(`${getUrlOrigin(url)}/${namespace}`, options),
-            }),
-            {},
-        ),
-    }), [namespaceKey, options, url]);
+    const [connections, setConnections] = useState<SocketConnections | null>(null);
 
-    useEffect(() => () => {
-        connections.socket.disconnect();
-        Object.values(connections.namespaces).forEach((socket) => socket.disconnect());
-    }, [connections]);
+    useEffect(() => {
+        const nextConnections: SocketConnections = {
+            socket: io(url, options),
+            namespaces: namespaces.reduce(
+                (result, namespace) => ({
+                    ...result,
+                    [namespace]: io(`${getUrlOrigin(url)}/${namespace}`, options),
+                }),
+                {},
+            ),
+        };
+
+        setConnections(nextConnections);
+
+        return () => {
+            nextConnections.socket.disconnect();
+            Object.values(nextConnections.namespaces).forEach((socket) => socket.disconnect());
+        };
+    }, [namespaceKey, options, url]);
 
     return (
-        <Context.Provider value={connections}>
+        <Context.Provider value={connections || { socket: null, namespaces: {} }}>
             {children}
         </Context.Provider>
     );

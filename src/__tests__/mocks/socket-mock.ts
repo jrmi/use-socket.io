@@ -15,7 +15,7 @@ export default ({
         listeners = listeners.filter((listener) =>
             listener.eventName !== eventName || listener.callback !== callback);
     }),
-    disconnect: () => { connected = false; },
+    disconnect: vi.fn(() => { connected = false; }),
     hasListeners: (eventName: string) =>
         listeners.some((listener) => listener.eventName === eventName),
 });
